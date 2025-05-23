@@ -91,6 +91,7 @@ set_option(TRACY_TIMER_FALLBACK "Use lower resolution timers" OFF)
 set_option(TRACY_LIBUNWIND_BACKTRACE "Use libunwind backtracing where supported" OFF)
 set_option(TRACY_SYMBOL_OFFLINE_RESOLVE "Instead of full runtime symbol resolution, only resolve the image path and offset to enable offline symbol resolution" OFF)
 set_option(TRACY_LIBBACKTRACE_ELF_DYNLOAD_SUPPORT "Enable libbacktrace to support dynamically loaded elfs in symbol resolution resolution after the first symbol resolve operation" OFF)
+set_option(TRACY_INSTALL "Enable installation" ON)
 
 # advanced
 set_option(TRACY_VERBOSE "[advanced] Verbose output from the profiler" OFF)
@@ -157,32 +158,34 @@ set(common_includes
     ${TRACY_PUBLIC_DIR}/common/TracyUwp.hpp
     ${TRACY_PUBLIC_DIR}/common/TracyYield.hpp)
 
-install(TARGETS TracyClient
-        EXPORT TracyConfig
-        RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        COMPONENT lib)
-# Export targets to build tree root
-export(TARGETS TracyClient
-       NAMESPACE Tracy::
-       FILE ${CMAKE_BINARY_DIR}/TracyTargets.cmake)
-install(FILES ${tracy_includes}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tracy)
-install(FILES ${client_includes}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/client)
-install(FILES ${common_includes}
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/common)
-install(EXPORT TracyConfig
-        NAMESPACE Tracy::
-        FILE TracyTargets.cmake
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
-include(CMakePackageConfigHelpers)
-configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
-        "${CMAKE_CURRENT_BINARY_DIR}/TracyConfig.cmake"
-        INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TracyConfig.cmake
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
+if(TRACY_INSTALL)
+    install(TARGETS TracyClient
+            EXPORT TracyConfig
+            RUNTIME  DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            COMPONENT lib)
+    # Export targets to build tree root
+    export(TARGETS TracyClient
+           NAMESPACE Tracy::
+           FILE ${CMAKE_BINARY_DIR}/TracyTargets.cmake)
+    install(FILES ${tracy_includes}
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/tracy)
+    install(FILES ${client_includes}
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/client)
+    install(FILES ${common_includes}
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/common)
+    install(EXPORT TracyConfig
+            NAMESPACE Tracy::
+            FILE TracyTargets.cmake
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
+    include(CMakePackageConfigHelpers)
+    configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+            "${CMAKE_CURRENT_BINARY_DIR}/TracyConfig.cmake"
+            INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/TracyConfig.cmake
+            DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/Tracy)
+endif()
 
 option(TRACY_CLIENT_PYTHON "Whether to build Tracy python client library" OFF)
 
